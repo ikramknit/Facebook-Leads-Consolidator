@@ -81,7 +81,18 @@ export const processExcelFiles = (files: FileList): Promise<Lead[]> => {
     try {
       const results = await Promise.all(filePromises);
       results.forEach(leads => allLeads.push(...leads));
-      resolve(allLeads);
+      
+      const uniqueLeads: Lead[] = [];
+      const seenMobiles = new Set<string>();
+
+      for (const lead of allLeads) {
+        if (!seenMobiles.has(lead.mobile)) {
+          seenMobiles.add(lead.mobile);
+          uniqueLeads.push(lead);
+        }
+      }
+
+      resolve(uniqueLeads);
     } catch (error) {
       reject(error);
     }
