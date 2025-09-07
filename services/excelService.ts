@@ -1,4 +1,3 @@
-
 import { Lead } from '../types';
 import { NAME_ALIASES, EMAIL_ALIASES, MOBILE_ALIASES } from '../constants';
 
@@ -39,13 +38,29 @@ export const processExcelFiles = (files: FileList): Promise<Lead[]> => {
                     const emailKey = findKeyByAliases(row, EMAIL_ALIASES);
                     const mobileKey = findKeyByAliases(row, MOBILE_ALIASES);
 
-                    if (nameKey || emailKey || mobileKey) {
-                        const lead: Lead = {
-                            name: nameKey ? String(row[nameKey]).trim() : '',
-                            email: emailKey ? String(row[emailKey]).trim() : '',
-                            mobile: mobileKey ? String(row[mobileKey]).trim() : '',
-                        };
-                        if (lead.name || lead.email || lead.mobile) {
+                    // A row is only valid if it has a mobile number that can be formatted to 10 digits.
+                    if (mobileKey && row[mobileKey]) {
+                        const rawMobile = String(row[mobileKey]).trim();
+                        // Remove all non-digit characters to handle formats like (123) 456-7890
+                        const cleanedMobile = rawMobile.replace(/\D/g, ''); 
+                        let finalMobile = '';
+
+                        if (cleanedMobile.length > 10) {
+                            // If more than 10 digits, take the last 10.
+                            finalMobile = cleanedMobile.slice(-10);
+                        } else if (cleanedMobile.length === 10) {
+                            // If exactly 10 digits, it's valid.
+                            finalMobile = cleanedMobile;
+                        }
+
+                        // If finalMobile is set, we have a valid 10-digit number.
+                        // Rows with mobile numbers < 10 digits are automatically skipped.
+                        if (finalMobile) {
+                             const lead: Lead = {
+                                name: nameKey ? String(row[nameKey]).trim() : '',
+                                email: emailKey ? String(row[emailKey]).trim() : '',
+                                mobile: finalMobile,
+                            };
                             fileLeads.push(lead);
                         }
                     }

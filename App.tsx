@@ -106,10 +106,15 @@ const App: React.FC = () => {
             }
             setLeads(extractedLeads);
         } catch (err) {
-            // FIX: Use String(err) for robust error message handling.
-            // This avoids property access on an 'unknown' type and safely converts
-            // any thrown value (Error objects, strings, etc.) to a string.
-            setError(String(err));
+            // FIX: Property 'name' does not exist on type 'unknown'.
+            // Added type checking to safely extract a user-friendly error message from the 'err' object.
+            if (err instanceof Error) {
+                setError(err.message);
+            } else if (typeof err === 'string') {
+                setError(err);
+            } else {
+                setError('An unexpected error occurred while processing files.');
+            }
         } finally {
             setIsLoading(false);
         }
