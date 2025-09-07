@@ -1,0 +1,5 @@
+{
+  "name": "Facebook Leads Consolidator",
+  "description": "An application to upload multiple Facebook lead Excel files, extract contact information (name, email, mobile), and merge them into a single downloadable Excel sheet.",
+  "requestFramePermissions": []
+}
